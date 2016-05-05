@@ -1,0 +1,7 @@
+<?import javafx.scene.layout.VBox?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" prefHeight="255.0" prefWidth="691.0" type="javafx.scene.layout.VBox"
+         xmlns="http://javafx.com/javafx/8.0.40">
+    <children>
+
+    </children>
+</fx:root>
