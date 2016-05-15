@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import custom_controls.DecimalTextField?>
+<?import custom_controls.IntegerTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="500.0" prefWidth="690.0" xmlns="http://javafx.com/javafx/8.0.40"
+            fx:controller="EvolutionSettingsController">
+    <center>
+        <VBox BorderPane.alignment="CENTER">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Population size"/>
+            <IntegerTextField fx:id="populationSize">
+                <VBox.margin>
+                    <Insets bottom="10.0"/>
+                </VBox.margin>
+            </IntegerTextField>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Probability of crossover"/>
+            <DecimalTextField fx:id="probabilityOfCrossover">
+                <VBox.margin>
+                    <Insets bottom="10.0"/>
+                </VBox.margin>
+            </DecimalTextField>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Probability of mutation"/>
+            <DecimalTextField fx:id="probabilityOfMutation">
+                <VBox.margin>
+                    <Insets bottom="10.0"/>
+                </VBox.margin>
+            </DecimalTextField>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Anneal time"/>
+            <IntegerTextField fx:id="annealTime"/>
+        </VBox>
+    </center>
+    <bottom>
+        <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <buttons>
+                <Button fx:id="back" mnemonicParsing="false" text="Back" ButtonBar.buttonData="LEFT"/>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="2/3"/>
+                <Button fx:id="next" mnemonicParsing="false" text="Next" ButtonBar.buttonData="NEXT_FORWARD"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
+    <padding>
+        <Insets left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</BorderPane>
