@@ -1,5 +1,6 @@
 package clustering;
 
+import dataset.Project;
 import org.jetbrains.annotations.Contract;
 import utils.Distance;
 
@@ -23,7 +24,7 @@ public class Silhouette {
      * @return The silhouette value of the provided point.
      */
     @Contract("_, _, null -> fail")
-    public static double getSilhouetteValue(Double[] point, Cluster pointCluster, Cluster... otherClusters) {
+    public static double getSilhouetteValue(Project point, Cluster pointCluster, Cluster... otherClusters) {
         // region Argument checks
         if (otherClusters == null || otherClusters.length == 0)
             throw new IllegalArgumentException("Silhouette calculation requires at least two cluster");
@@ -36,17 +37,17 @@ public class Silhouette {
                 / (Double.max(averageDissimilarity, lowestAverageDissimilarity));
     }
 
-    private static double averageDissimilarity(Double[] point, Cluster cluster) {
+    private static double averageDissimilarity(Project point, Cluster cluster) {
         double sum = 0;
 
-        for (Double[] clusterPoint : cluster.getPoints()) {
-            sum += Distance.getEuclideanDistance(point, clusterPoint);
+        for (Project clusterPoint : cluster.getPoints()) {
+            sum += Distance.getEuclideanDistance(point.getData(), clusterPoint.getData());
         }
 
         return sum / cluster.getPoints().size();
     }
 
-    private static double lowestAverageDissimilarity(Double[] point, Cluster[] clusters) {
+    private static double lowestAverageDissimilarity(Project point, Cluster[] clusters) {
 
         double minAverageDissimilarity = Double.MAX_VALUE;
 

@@ -8,22 +8,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Runs an {@link AbstractEvolutionaryAlgorithm} synchronously or asynchronously. Has pausing, continuing and stopping
- * functionality and can be set up to run forever or to stop after a specified number of generations.
- * <p>
- * To maintain thread safety the population provided to listeners is read only.
+ * Runs an {@link AbstractEvolutionaryAlgorithm} synchronously.
  * <p>
  * Created by Joseph Billingsley on 02/03/2016.
  */
 public class AlgorithmRunner<S extends Solution<?>> {
 
-    public static final int RUN_FOREVER = -1;
-
     private AbstractEvolutionaryAlgorithm<S> algorithm;
-    private List<Consumer<List<S>>> updateListeners = new ArrayList<>();
-    private List<Consumer<List<S>>> finishedListeners = new ArrayList<>();
 
-    private volatile boolean stop = false, pause = true;
+    private List<Consumer<List<S>>> updateListeners = new ArrayList<>();
 
     /**
      * Creates an algorithm runner for the provided evolutionary algorithm.
@@ -35,96 +28,46 @@ public class AlgorithmRunner<S extends Solution<?>> {
     }
 
     /**
-     * Runs the {@link AbstractEvolutionaryAlgorithm} provided in the constructor.
+     * Runs the {@link AbstractEvolutionaryAlgorithm} provided in the constructor for a single epoch. Upon completion
+     * the last population is returned.
      *
-     * @param stopAfter   The number of epochs after which the algorithm should stop running. If
-     *                    AlgorithmRunner.RUN_FOREVER is provided the algorithm will run until stop is called.
-     * @param runSync     If true, runs the algorithm on the same thread as the caller. Otherwise runs the algorithm on
-     *                    a daemon thread.
-     * @param startPaused If true the algorithm will not run until {@link #continueRun()} is called.
+     * @return The updated population after the epoch.
      */
-    public void start(final int stopAfter, boolean runSync, boolean startPaused) {
+    public List<S> step() {
+        return runFor(1);
+    }
 
-        if (startPaused)
-            pause();
-        else
-            continueRun();
+    /**
+     * Runs the {@link AbstractEvolutionaryAlgorithm} provided in the constructor for the provided number of epochs.
+     * Upon completion the last population is returned.
+     *
+     * @param generations The number of epochs after which the algorithm should stop running. If
+     *                    the value AlgorithmRunner.RUN_FOREVER is provided the algorithm will run until stop is called.
+     * @return The most recent population.
+     */
+    public List<S> runFor(final int generations) {
 
-        boolean runForever = stopAfter == RUN_FOREVER;
+        List<S> offspringPopulation;
+        List<S> matingPopulation;
 
-        Thread run = new Thread(() -> {
-            int currGen = stopAfter;
+        List<S> population = algorithm.createInitialPopulation();
+        population = algorithm.evaluatePopulation(population);
 
-            List<S> offspringPopulation;
-            List<S> matingPopulation;
+        for (int i = 0; i < generations; i++) {
+            matingPopulation = algorithm.selection(population);
+            offspringPopulation = algorithm.reproduction(matingPopulation);
+            offspringPopulation = algorithm.evaluatePopulation(offspringPopulation);
+            population = algorithm.replacement(population, offspringPopulation);
+            algorithm.nextGeneration();
 
-            List<S> population = algorithm.createInitialPopulation();
-            population = algorithm.evaluatePopulation(population);
+            List<S> immutablePopulation = Collections.unmodifiableList(population);
 
-            while (true) {
-
-                if (stop) {
-                    for (Consumer<List<S>> finishedListener : finishedListeners) {
-                        List<S> immutablePopulation = Collections.unmodifiableList(population);
-                        finishedListener.accept(immutablePopulation);
-                    }
-
-                    return;
-                }
-
-                if (pause) continue;
-
-                matingPopulation = algorithm.selection(population);
-                offspringPopulation = algorithm.reproduction(matingPopulation);
-                offspringPopulation = algorithm.evaluatePopulation(offspringPopulation);
-                population = algorithm.replacement(population, offspringPopulation);
-                algorithm.nextGeneration();
-
-                for (Consumer<List<S>> listener : updateListeners) {
-                    List<S> immutablePopulation = Collections.unmodifiableList(population);
-                    listener.accept(immutablePopulation);
-                }
-
-                if (runForever) continue;
-
-                if (currGen > 0) currGen--;
-                else if (currGen == 0) stop();
-            }
-        });
-
-        run.setDaemon(true);
-        run.start();
-
-        if (runSync) {
-            try {
-                run.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (Consumer<List<S>> listener : updateListeners) {
+                listener.accept(immutablePopulation);
             }
         }
-    }
 
-    /**
-     * Brings the algorithm out of a paused state and into the running stage.
-     */
-    public void continueRun() {
-        pause = false;
-    }
-
-    /**
-     * Pauses the running of the algorithm at the end of the current epoch.
-     */
-    public void pause() {
-        pause = true;
-    }
-
-    /**
-     * Stops the algorithm at the end of the current epoch. 'Finished' listeners will be called when the runner has
-     * stopped. The algorithm cannot be continued after stopped and the daemon thread associated with the runner will be
-     * released.
-     */
-    public void stop() {
-        stop = true;
+        return population;
     }
 
     /**
@@ -135,15 +78,5 @@ public class AlgorithmRunner<S extends Solution<?>> {
      */
     public void addUpdateListener(Consumer<List<S>> listener) {
         updateListeners.add(listener);
-    }
-
-    /**
-     * Adds a consumer that will be called when the algorithm stops running. The listener will receive an unmodifiable
-     * version of the final population.
-     *
-     * @param listener The consumer to call.
-     */
-    public void addFinishedListener(Consumer<List<S>> listener) {
-        finishedListeners.add(listener);
     }
 }

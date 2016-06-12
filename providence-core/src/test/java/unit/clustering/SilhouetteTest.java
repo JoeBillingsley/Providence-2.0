@@ -2,6 +2,7 @@ package unit.clustering;
 
 import clustering.Cluster;
 import clustering.Silhouette;
+import dataset.Project;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -15,31 +16,37 @@ public class SilhouetteTest {
         // Point in the middle of a cross
         Cluster clusterOne = new Cluster();
         clusterOne.addPoints(
-                new Double[]{0.0, 1.0},
-                new Double[]{1.0, 0.0},
-                new Double[]{2.0, 1.0},
-                new Double[]{1.0, 2.0}
+                new Project(0, new Double[]{0.0, 1.0}),
+                new Project(1, new Double[]{1.0, 0.0}),
+                new Project(2, new Double[]{2.0, 1.0}),
+                new Project(3, new Double[]{1.0, 2.0})
         );
 
         // Vertical line 1
         Cluster clusterTwo = new Cluster();
         clusterTwo.addPoints(
-                new Double[]{0.0, 1.0},
-                new Double[]{0.0, 2.0},
-                new Double[]{0.0, 3.0});
+                new Project(4, new Double[]{0.0, 1.0}),
+                new Project(5, new Double[]{0.0, 2.0}),
+                new Project(6, new Double[]{0.0, 3.0})
+        );
 
         // Vertical line 2
         Cluster clusterThr = new Cluster();
         clusterThr.addPoints(
-                new Double[]{50.0, 1.0},
-                new Double[]{50.0, 2.0},
-                new Double[]{50.0, 3.0}
+                new Project(7, new Double[]{50.0, 1.0}),
+                new Project(8, new Double[]{50.0, 2.0}),
+                new Project(9, new Double[]{50.0, 3.0})
         );
 
         // Act
-        double good = Silhouette.getSilhouetteValue(new Double[]{1.0, 1.0}, clusterOne, clusterThr);
-        double equal = Silhouette.getSilhouetteValue(new Double[]{25.0, 1.0}, clusterTwo, clusterThr);
-        double poor = Silhouette.getSilhouetteValue(new Double[]{4.0, 1.0}, clusterThr, clusterTwo);
+        double good = Silhouette.getSilhouetteValue(
+                new Project(20, new Double[]{1.0, 1.0}), clusterOne, clusterThr);
+
+        double equal = Silhouette.getSilhouetteValue(
+                new Project(21, new Double[]{25.0, 1.0}), clusterTwo, clusterThr);
+
+        double poor = Silhouette.getSilhouetteValue(
+                new Project(22, new Double[]{4.0, 1.0}), clusterThr, clusterTwo);
 
         Throwable tooFewClusters = captureThrowable(
                 () -> Silhouette.getSilhouetteValue(clusterOne.getPoints().get(0), clusterOne));

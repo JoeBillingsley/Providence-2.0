@@ -2,9 +2,9 @@ package unit.clustering;
 
 import clustering.IMeanInitialiser;
 import clustering.PlusPlusInitialisation;
+import dataset.Project;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,13 +18,14 @@ public class PlusPlusInitialisationTest {
         // Arrange
         IMeanInitialiser init = new PlusPlusInitialisation();
 
-        List<Double[]> points = new ArrayList<>();
-        points.add(new Double[]{0.0, 0.0});
-        points.add(new Double[]{1.0, 1.0});
-        points.add(new Double[]{2.0, 2.0});
-        points.add(new Double[]{3.0, 3.0});
-        points.add(new Double[]{4.0, 4.0});
-        points.add(new Double[]{5.0, 5.0});
+        List<Project> points = Arrays.asList(
+                new Project(0, new Double[]{0.0, 0.0}),
+                new Project(1, new Double[]{1.0, 1.0}),
+                new Project(2, new Double[]{2.0, 2.0}),
+                new Project(3, new Double[]{3.0, 3.0}),
+                new Project(4, new Double[]{4.0, 4.0}),
+                new Project(5, new Double[]{5.0, 5.0})
+        );
 
         // Act
         List<Double[]> means = init.initialiseMeans(3, points);
@@ -37,11 +38,21 @@ public class PlusPlusInitialisationTest {
         assertEquals(IndexOutOfBoundsException.class, tooManyMeans.getClass());
 
         for (int i = 0; i < means.size(); i++) {
-            assertTrue(points.contains(means.get(i)));
+
+            assertTrue(meanExistsInPopulation(means.get(i), points));
 
             for (int j = 0; j < means.size(); j++) {
                 assertFalse(i != j && Arrays.equals(means.get(i), means.get(j)));
             }
         }
+    }
+
+    private boolean meanExistsInPopulation(Double[] mean, List<Project> projects) {
+        for (Project project : projects) {
+            if (Arrays.equals(project.getData(), mean))
+                return true;
+        }
+
+        return false;
     }
 }

@@ -1,6 +1,7 @@
 package unit.dataset;
 
 import dataset.InputOutput;
+import dataset.Project;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,7 +13,7 @@ public class InputOutputTest {
     @Test
     public void testConstructInputOutput() throws Exception {
         // Arrange
-        Double[] project = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+        Project project = new Project(0, new Double[]{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
 
         // Act
         InputOutput normal = new InputOutput(project, new int[]{0, 3, 4});

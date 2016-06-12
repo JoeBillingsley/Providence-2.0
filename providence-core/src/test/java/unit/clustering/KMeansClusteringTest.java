@@ -3,9 +3,11 @@ package unit.clustering;
 import clustering.Cluster;
 import clustering.IMeanInitialiser;
 import clustering.KMeansClustering;
+import dataset.Project;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -21,35 +23,35 @@ public class KMeansClusteringTest {
     public void testRun() {
 
         // Arrange
-        List<Double[]> points = new ArrayList<>();
+        List<Project> points = Arrays.asList(
+                // Cluster one
+                new Project(0, new Double[]{0.0, 0.0}),
+                new Project(1, new Double[]{1.0, 0.0}),
+                new Project(2, new Double[]{0.0, 1.0}),
+                new Project(3, new Double[]{1.0, 1.0}),
 
-        // Cluster one
-        points.add(new Double[]{0.0, 1.0});
-        points.add(new Double[]{1.0, 0.0});
-        points.add(new Double[]{2.0, 1.0});
-        points.add(new Double[]{1.0, 2.0});
+                // Cluster two
+                new Project(4, new Double[]{7.0, 2.0}),
+                new Project(5, new Double[]{8.0, 4.0}),
+                new Project(6, new Double[]{9.0, 2.0}),
 
-        // Cluster two
-        points.add(new Double[]{7.0, 2.0});
-        points.add(new Double[]{8.0, 4.0});
-        points.add(new Double[]{9.0, 2.0});
-
-        // Cluster three
-        points.add(new Double[]{7.0, 7.0});
+                // Cluster three
+                new Project(7, new Double[]{7.0, 7.0})
+        );
 
         IMeanInitialiser init = mock(IMeanInitialiser.class);
 
         List<Double[]> initVal = new ArrayList<>();
-        initVal.add(new Double[] {0.0, 0.0});
-        initVal.add(new Double[] {7.0, 0.0});
-        initVal.add(new Double[] {7.0, 9.0});
+        initVal.add(new Double[]{0.0, 0.0});
+        initVal.add(new Double[]{7.0, 0.0});
+        initVal.add(new Double[]{7.0, 9.0});
 
         when(init.initialiseMeans(anyInt(), any())).thenReturn(initVal);
 
-        KMeansClustering kMeans = new KMeansClustering(points, init);
+        KMeansClustering kMeans = new KMeansClustering(init);
 
         // Act
-        Cluster[] clusters = kMeans.run(3);
+        Cluster[] clusters = kMeans.run(points, 3);
 
         // Assert
         assertEquals(3, clusters.length);

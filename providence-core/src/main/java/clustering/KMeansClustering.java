@@ -1,5 +1,6 @@
 package clustering;
 
+import dataset.Project;
 import utils.Distance;
 
 import java.util.ArrayList;
@@ -12,13 +13,11 @@ import java.util.List;
  * Algorithm: https://en.wikipedia.org/wiki/K-means_clustering
  * Created by Joseph Billingsley on 04/01/2016.
  */
-public class KMeansClustering {
+public class KMeansClustering implements IClustering {
 
-    private final List<Double[]> points;
     private IMeanInitialiser initialiser;
 
-    public KMeansClustering(List<Double[]> points, IMeanInitialiser initialiser) {
-        this.points = points;
+    public KMeansClustering(IMeanInitialiser initialiser) {
         this.initialiser = initialiser;
     }
 
@@ -27,7 +26,7 @@ public class KMeansClustering {
      *
      * @param k The number of clusters to divide the points into.
      */
-    public Cluster[] run(int k) {
+    public Cluster[] run(List<Project> points, int k) {
 
         Cluster[] clusters = new Cluster[k];
         for (int i = 0; i < clusters.length; i++) {
@@ -59,8 +58,7 @@ public class KMeansClustering {
         return true;
     }
 
-
-    private Cluster[] assignmentStep(Cluster[] clusters, List<Double[]> means, List<Double[]> points) {
+    private Cluster[] assignmentStep(Cluster[] clusters, List<Double[]> means, List<Project> points) {
 
         // Remove any points in a cluster
         for (Cluster cluster : clusters) {
@@ -68,13 +66,13 @@ public class KMeansClustering {
         }
 
         // Assign each point to the closest mean
-        for (Double[] point : points) {
+        for (Project point : points) {
 
             int closestCluster = 0;
             double distanceToClosestMean = Double.MAX_VALUE;
 
             for (int j = 0; j < means.size(); j++) {
-                Double distance = Distance.getEuclideanDistance(point, means.get(j));
+                Double distance = Distance.getEuclideanDistance(point.getData(), means.get(j));
 
                 if (distance < distanceToClosestMean) {
                     closestCluster = j;
@@ -99,4 +97,5 @@ public class KMeansClustering {
 
         return means;
     }
+
 }

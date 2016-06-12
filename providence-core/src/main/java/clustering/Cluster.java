@@ -1,5 +1,7 @@
 package clustering;
 
+import dataset.Project;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,21 +13,21 @@ import java.util.List;
  */
 public class Cluster {
 
-    private ArrayList<Double[]> points = new ArrayList<>();
+    private ArrayList<Project> points = new ArrayList<>();
 
     /**
      * Stores the provided points in the cluster.
      *
      * @param points The points to add into the cluster.
      */
-    public void addPoints(Double[]... points) {
+    public void addPoints(Project... points) {
         Collections.addAll(this.points, points);
     }
 
     /**
      * @return The points stored in the cluster.
      */
-    public List<Double[]> getPoints() {
+    public List<Project> getPoints() {
         return points;
     }
 
@@ -36,15 +38,15 @@ public class Cluster {
         if (points.size() == 0)
             throw new IllegalArgumentException("There must be points in the cluster to calculate the mean.");
 
-        Double[] mean = new Double[points.get(0).length];
+        Double[] mean = new Double[points.get(0).getData().length];
 
         for (int i = 0; i < mean.length; i++) {
             mean[i] = 0.0;
         }
 
         for (int i = 0; i < mean.length; i++) {
-            for (Double[] point : points) {
-                mean[i] += point[i];
+            for (Project point : points) {
+                mean[i] += point.getData()[i];
             }
 
             mean[i] = mean[i] / points.size();

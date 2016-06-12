@@ -30,8 +30,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class EstimationSteps {
 
-    // NOTE: Removed rubbish from files e.g. '?'s is desharnis
-
     private double crossoverProbability, mutationProbability;
     private int generations, annealTime;
     private int populationSize;
@@ -50,23 +48,23 @@ public class EstimationSteps {
 
     @Given("a syntactically valid .arff file is at '([^\']*)'$")
     public void produceTrainingSet(String filePath) throws IOException {
-        File file = new File(filePath);
-
-        DataSetReader dsr = new DataSetReader(file);
-        ds = dsr.open();
+//        File file = new File(filePath);
+//
+//        DataSetReader dsr = new DataSetReader(file);
+//        ds = dsr.open();
     }
 
     @And("^the actual effort is contained in the feature '(.*)'$")
     public void findOutputFeature(String outputFeature) {
 
-        List<Feature> features = ds.getFeatures();
-
-        for (int i = 0; i < features.size(); i++) {
-            Feature feature = features.get(i);
-
-            if (feature.getName().equals(outputFeature))
-                effortFeature = feature;
-        }
+//        List<Feature> features = ds.getFeatures();
+//
+//        for (int i = 0; i < features.size(); i++) {
+//            Feature feature = features.get(i);
+//
+//            if (feature.getName().equals(outputFeature))
+//                effortFeature = feature;
+//        }
     }
 
     @And("^the probability of a crossover step occurring is (\\d+\\.\\d+), the probability of a mutation step occurring is (\\d+\\.\\d+)$")
@@ -88,76 +86,76 @@ public class EstimationSteps {
 
     @When("^the outliers are removed$")
     public void theOutliersAreRemoved() {
-        OutlierDetector od = new OutlierDetector();
-
-        List<Double[]> projects = ds.getProjects();
-        List<Double[]> outliers = od.getOutliers(projects);
-
-        projects.removeAll(outliers);
+//        OutlierDetector od = new OutlierDetector();
+//
+//        List<Double[]> projects = ds.getProjects();
+//        List<Double[]> outliers = od.getOutliers(projects);
+//
+//        projects.removeAll(outliers);
     }
 
     @And("^the model is trained using (\\d+)% of the data, and tested using Monte Carlo cross validation with (\\d+) splits$")
     public void evolveModel(int percentageOfTrainingData, int splits) {
 
-        ArrayList<Feature> outputFeatures = new ArrayList<>();
-        outputFeatures.add(effortFeature);
-
-        TrainingData shuffler = new TrainingData(ds, outputFeatures);
-
-        for (int i = 0; i < splits; i++) {
-            InputOutput[][] split = shuffler.getSplitOfRatio(percentageOfTrainingData / 100.0);
-
-            InputOutput[] trainingSet = split[0];
-            InputOutput[] testingSet = split[1];
-
-            List<ErrorMetric> errorMetrics = new ArrayList<>();
-            errorMetrics.add(objOne);
-            errorMetrics.add(objTwo);
-            errorMetrics.add(objThr);
-
-            SEEProblem problem = new SEEProblem(trainingSet, errorMetrics);
-
-            RHaDMOEA algorithm =
-                    new RHaDMOEA(
-                            problem,
-                            populationSize,
-                            new MLPCrossOver(crossoverProbability, annealTime),
-                            new GaussianMutation(mutationProbability));
-
-            AlgorithmRunner<SEESolution> runner = new AlgorithmRunner<>(algorithm);
-
-            runner.addFinishedListener(results -> {
-                Double[] actuals = new Double[testingSet.length];
-                Double[] estimates = new Double[testingSet.length];
-
-                for (int j = 0; j < testingSet.length; j++) {
-                    InputOutput inputOutputPairs = testingSet[j];
-                    actuals[j] = inputOutputPairs.getOutputs()[0];
-
-                    ParetoEnsemble paretoEnsemble = new ParetoEnsemble(results);
-                    estimates[j] = paretoEnsemble.getResult(inputOutputPairs.getInputs());
-                }
-
-                objOneVals.add(objOne.error(actuals, estimates));
-                objTwoVals.add(objTwo.error(actuals, estimates));
-                objThrVals.add(objThr.error(actuals, estimates));
-            });
-
-            runner.start(generations, true, false);
-        }
-
-        // Print and assert averages separately as otherwise we will not always see the results
-        Double[] objOneArr = new Double[objOneVals.size()];
-        Double[] objTwoArr = new Double[objTwoVals.size()];
-        Double[] objThrArr = new Double[objThrVals.size()];
-
-        objOneVals.toArray(objOneArr);
-        objTwoVals.toArray(objTwoArr);
-        objThrVals.toArray(objThrArr);
-
-        System.out.println("LSD: " + calcAverage(objOneVals) + " +- " + Variance.calculateStandardDeviation(objOneArr));
-        System.out.println("MMRE: " + calcAverage(objTwoVals) + " +- " + Variance.calculateStandardDeviation(objTwoArr));
-        System.out.println("PRED25: " + calcAverage(objThrVals) + " +- " + Variance.calculateStandardDeviation(objThrArr));
+//        ArrayList<Feature> outputFeatures = new ArrayList<>();
+//        outputFeatures.add(effortFeature);
+//
+//        TrainingData shuffler = new TrainingData(ds, outputFeatures);
+//
+//        for (int i = 0; i < splits; i++) {
+//            InputOutput[][] split = shuffler.getSplitOfRatio(percentageOfTrainingData / 100.0);
+//
+//            InputOutput[] trainingSet = split[0];
+//            InputOutput[] testingSet = split[1];
+//
+//            List<ErrorMetric> errorMetrics = new ArrayList<>();
+//            errorMetrics.add(objOne);
+//            errorMetrics.add(objTwo);
+//            errorMetrics.add(objThr);
+//
+//            SEEProblem problem = new SEEProblem(trainingSet, errorMetrics);
+//
+//            RHaDMOEA algorithm =
+//                    new RHaDMOEA(
+//                            problem,
+//                            populationSize,
+//                            new MLPCrossOver(crossoverProbability, annealTime),
+//                            new GaussianMutation(mutationProbability));
+//
+//            AlgorithmRunner<SEESolution> runner = new AlgorithmRunner<>(algorithm);
+//
+//            runner.addFinishedListener(results -> {
+//                Double[] actuals = new Double[testingSet.length];
+//                Double[] estimates = new Double[testingSet.length];
+//
+//                for (int j = 0; j < testingSet.length; j++) {
+//                    InputOutput inputOutputPairs = testingSet[j];
+//                    actuals[j] = inputOutputPairs.getOutputs()[0];
+//
+//                    ParetoEnsemble paretoEnsemble = new ParetoEnsemble(results);
+//                    estimates[j] = paretoEnsemble.getResult(inputOutputPairs.getInputs());
+//                }
+//
+//                objOneVals.add(objOne.error(actuals, estimates));
+//                objTwoVals.add(objTwo.error(actuals, estimates));
+//                objThrVals.add(objThr.error(actuals, estimates));
+//            });
+//
+//            runner.start(generations, true, false);
+//        }
+//
+//        // Print and assert averages separately as otherwise we will not always see the results
+//        Double[] objOneArr = new Double[objOneVals.size()];
+//        Double[] objTwoArr = new Double[objTwoVals.size()];
+//        Double[] objThrArr = new Double[objThrVals.size()];
+//
+//        objOneVals.toArray(objOneArr);
+//        objTwoVals.toArray(objTwoArr);
+//        objThrVals.toArray(objThrArr);
+//
+//        System.out.println("LSD: " + calcAverage(objOneVals) + " +- " + Variance.calculateStandardDeviation(objOneArr));
+//        System.out.println("MMRE: " + calcAverage(objTwoVals) + " +- " + Variance.calculateStandardDeviation(objTwoArr));
+//        System.out.println("PRED25: " + calcAverage(objThrVals) + " +- " + Variance.calculateStandardDeviation(objThrArr));
     }
 
     @Then("^the mean average LSD is less than (\\d+\\.\\d+)$")

@@ -15,6 +15,8 @@ public class TrainingData {
     private final DataSet srcDataSet;
     private List<InputOutput> trainingData;
 
+    // TODO: Add support for training, testing and validation sets
+
     /**
      * Constructs a training set from a source data set and the features to be estimated.
      *
@@ -48,11 +50,11 @@ public class TrainingData {
     }
 
     private void setOutputFeatures(int[] outputIndexes) {
-        List<Double[]> projects = srcDataSet.getProjects();
+        List<Project> projects = srcDataSet.getProjects();
 
         trainingData = new ArrayList<>();
 
-        for (Double[] project : projects) {
+        for (Project project : projects) {
             trainingData.add(new InputOutput(project, outputIndexes));
         }
     }

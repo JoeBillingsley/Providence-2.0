@@ -82,21 +82,14 @@ public class DataSetReaderTest {
                 .thenReturn(null);
         //endregion
 
-        DataSetReader ordinaryReader = new DataSetReader(commonSrc);
-        DataSetReader missingDataReader = new DataSetReader(missingDataSrc);
-        DataSetReader missingAttrReader = new DataSetReader(missingAttrSrc);
-        DataSetReader mismatchReader = new DataSetReader(mismatchingAttributeSrc);
-        DataSetReader misalignedReader = new DataSetReader(misalignedAttributesSrc);
-        DataSetReader unknownTypeReader = new DataSetReader(unknownTypeSrc);
-
         // Act
-        DataSet ordinary = ordinaryReader.open();
-        DataSet missingData = missingDataReader.open();
+        DataSet ordinary = DataSetReader.open(commonSrc);
+        DataSet missingData = DataSetReader.open(missingDataSrc);
 
-        Throwable missingAttr = ThrowableCaptor.captureThrowable(missingAttrReader::open);
-        Throwable mismatch = ThrowableCaptor.captureThrowable(mismatchReader::open);
-        Throwable misaligned = ThrowableCaptor.captureThrowable(misalignedReader::open);
-        Throwable unknownType = ThrowableCaptor.captureThrowable(unknownTypeReader::open);
+        Throwable missingAttr = ThrowableCaptor.captureThrowable(() -> DataSetReader.open(missingAttrSrc));
+        Throwable mismatch = ThrowableCaptor.captureThrowable(() -> DataSetReader.open(mismatchingAttributeSrc));
+        Throwable misaligned = ThrowableCaptor.captureThrowable(() -> DataSetReader.open(misalignedAttributesSrc));
+        Throwable unknownType = ThrowableCaptor.captureThrowable(() -> DataSetReader.open(unknownTypeSrc));
 
         // Assert
         List<Feature> features;

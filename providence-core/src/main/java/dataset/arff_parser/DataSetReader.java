@@ -4,7 +4,10 @@ import dataset.DataSet;
 import dataset.Feature;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,112 +22,9 @@ import java.util.function.Function;
 public class DataSetReader {
 
     private static int lineNo;
-    private BufferedReader reader;
 
-    public DataSetReader(File file) throws FileNotFoundException {
-        reader = new BufferedReader(new FileReader(file));
-    }
-
-    public DataSetReader(BufferedReader reader) {
-        this.reader = reader;
-    }
-
-    private void parseData(List<Attribute> attributes, Map<String, List<Double>> data, String line) {
-
-        String[] values = line.split(",");
-
-        // Check the data is of the correct size
-        if (values.length < attributes.size())
-            throw new RuntimeException("Error at line " + lineNo + ". There are not as many values as attributes");
-
-        if (values.length > attributes.size())
-            throw new RuntimeException("Error at line " + lineNo + ". There are more values than attributes");
-
-        // Apply all of the attributes and store the value in the correct column
-        for (int i = 0; i < attributes.size(); i++) {
-            String value = values[i];
-            Attribute attribute = attributes.get(i);
-
-            Function<String, Double> eval = attribute.getEval();
-
-            List<Double> column = data.get(attribute.getName());
-            column.add(eval.apply((value)));
-        }
-    }
-
-    private Attribute parseAttribute(String attribute) {
-
-        // Attribute structure
-        // @attribute <attribute-name>|'<attribute-name>' <datatype>
-        //             String                              DataType
-
-        String[] words = attribute.split(" ");
-
-        StringBuilder name = new StringBuilder();
-        int namePos = 1;
-
-        if (words[namePos].startsWith("'")) {
-
-            for (int i = namePos; i < words.length; i++) {
-                String word = words[i];
-                name.append(word);
-                namePos ++;
-
-                if (word.endsWith("'"))
-                    break;
-
-                // Add spaces back for display purpose
-                name.append(" ");
-            }
-        } else {
-            name.append(words[namePos++]);
-        }
-
-        StringBuilder dataType = new StringBuilder();
-        for (int i = namePos; i < words.length; i++) {
-            dataType.append(words[i]);
-        }
-
-        if (dataType.length() == 0)
-            throw new IllegalArgumentException("Error at line " + lineNo + ". No datatype specified in attribute: " + attribute);
-
-        return new Attribute(
-                name.toString(),
-                parseDataType(dataType.toString()),
-                parseAcceptableValues(dataType.toString()));
-    }
-
-    private Function<String, Double> parseDataType(String dataType) {
-        // DataType structure
-        // numeric | <nominal-specification> | date[<date-format>] | string
-        // Double     NominalSpecification     Not supported         Not supported
-        // The 'string' and 'date' types are not supported as they cannot be sensibly converted into a double
-
-        if (dataType.equalsIgnoreCase("numeric") || dataType.equalsIgnoreCase("real")) {
-            return Double::parseDouble;
-        }
-
-        if (dataType.startsWith("{")) {
-            return (x) -> NominalSpecification.parse(dataType).getValue(x);
-        }
-
-        throw new RuntimeException("Error at line " + lineNo + ". Unrecognized data type: " + dataType);
-    }
-
-    @Nullable
-    private List<String> parseAcceptableValues(String dataType) {
-        // DataType structure
-        // numeric | <nominal-specification> | date[<date-format>] | string
-        // Double     NominalSpecification     Not supported         Not supported
-        // The 'string' and 'date' types are not supported as they cannot be sensibly converted into a double
-
-        if (dataType.equalsIgnoreCase("numeric") || dataType.equalsIgnoreCase("real"))
-            return null;
-
-        if (dataType.startsWith("{"))
-            return NominalSpecification.parse(dataType).getReadonlyComponents();
-
-        throw new RuntimeException("Error at line " + lineNo + ". Unrecognized data type: " + dataType);
+    public static DataSet open(File file) throws IOException {
+        return open(new BufferedReader(new FileReader(file)));
     }
 
     /**
@@ -133,7 +33,7 @@ public class DataSetReader {
      * @return A dataset object with the information from the arff file.
      * @throws IOException If the file cannot be read
      */
-    public DataSet open() throws IOException {
+    public static DataSet open(BufferedReader reader) throws IOException {
 
         lineNo = 0;
         List<Attribute> attributes = new ArrayList<>();
@@ -191,5 +91,103 @@ public class DataSetReader {
         }
 
         return dataSet;
+    }
+
+    private static void parseData(List<Attribute> attributes, Map<String, List<Double>> data, String line) {
+
+        String[] values = line.split(",");
+
+        // Check the data is of the correct size
+        if (values.length < attributes.size())
+            throw new RuntimeException("Error at line " + lineNo + ". There are not as many values as attributes");
+
+        if (values.length > attributes.size())
+            throw new RuntimeException("Error at line " + lineNo + ". There are more values than attributes");
+
+        // Apply all of the attributes and store the value in the correct column
+        for (int i = 0; i < attributes.size(); i++) {
+            String value = values[i];
+            Attribute attribute = attributes.get(i);
+
+            Function<String, Double> eval = attribute.getEval();
+
+            List<Double> column = data.get(attribute.getName());
+            column.add(eval.apply((value)));
+        }
+    }
+
+    private static Attribute parseAttribute(String attribute) {
+
+        // Attribute structure
+        // @attribute <attribute-name>|'<attribute-name>' <datatype>
+        //             String                              DataType
+
+        String[] words = attribute.split(" ");
+
+        StringBuilder name = new StringBuilder();
+        int namePos = 1;
+
+        if (words[namePos].startsWith("'")) {
+
+            for (int i = namePos; i < words.length; i++) {
+                String word = words[i];
+                name.append(word);
+                namePos++;
+
+                if (word.endsWith("'"))
+                    break;
+
+                // Add spaces back for display purpose
+                name.append(" ");
+            }
+        } else {
+            name.append(words[namePos++]);
+        }
+
+        StringBuilder dataType = new StringBuilder();
+        for (int i = namePos; i < words.length; i++) {
+            dataType.append(words[i]);
+        }
+
+        if (dataType.length() == 0)
+            throw new IllegalArgumentException("Error at line " + lineNo + ". No datatype specified in attribute: " + attribute);
+
+        return new Attribute(
+                name.toString(),
+                parseDataType(dataType.toString()),
+                parseAcceptableValues(dataType.toString()));
+    }
+
+    private static Function<String, Double> parseDataType(String dataType) {
+        // DataType structure
+        // numeric | <nominal-specification> | date[<date-format>] | string
+        // Double     NominalSpecification     Not supported         Not supported
+        // The 'string' and 'date' types are not supported as they cannot be sensibly converted into a double
+
+        if (dataType.equalsIgnoreCase("numeric") || dataType.equalsIgnoreCase("real")) {
+            return Double::parseDouble;
+        }
+
+        if (dataType.startsWith("{")) {
+            return (x) -> NominalSpecification.parse(dataType).getValue(x);
+        }
+
+        throw new RuntimeException("Error at line " + lineNo + ". Unrecognized data type: " + dataType);
+    }
+
+    @Nullable
+    private static List<String> parseAcceptableValues(String dataType) {
+        // DataType structure
+        // numeric | <nominal-specification> | date[<date-format>] | string
+        // Double     NominalSpecification     Not supported         Not supported
+        // The 'string' and 'date' types are not supported as they cannot be sensibly converted into a double
+
+        if (dataType.equalsIgnoreCase("numeric") || dataType.equalsIgnoreCase("real"))
+            return null;
+
+        if (dataType.startsWith("{"))
+            return NominalSpecification.parse(dataType).getReadonlyComponents();
+
+        throw new RuntimeException("Error at line " + lineNo + ". Unrecognized data type: " + dataType);
     }
 }

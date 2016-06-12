@@ -67,14 +67,14 @@ public class ModelLibraryController extends Controller {
         };
 
         // region Model
-        ModelLoadingService modelLoader = new ModelLoadingService();
-        modelLoader.setOnSucceeded(event -> {
-            Model model = modelLoader.getValue();
-            modelsRepo.add(model);
-            modelsList.getSelectionModel().select(model);
-        });
-
-        modelLoader.exceptionProperty().addListener(loaderException);
+//        ModelLoadingService modelLoader = new ModelLoadingService();
+//        modelLoader.setOnSucceeded(event -> {
+//            Model model = modelLoader.getValue();
+//            modelsRepo.add(model);
+//            modelsList.getSelectionModel().select(model);
+//        });
+//
+//        modelLoader.exceptionProperty().addListener(loaderException);
 
         modelsList.setItems(modelsRepo.getReadOnlyModels());
         modelsList.setCellFactory((view) -> new ModelCell());
@@ -126,32 +126,32 @@ public class ModelLibraryController extends Controller {
             });
         });
 
-        addModel.setOnAction(event -> runLoader(modelLoader));
-        removeModel.setOnAction(event -> {
-            projectsTable.getColumns().clear();
-            modelsRepo.remove(modelsList.getSelectionModel().getSelectedIndex());
-        });
-        // endregion
-
-        // region Test
-        TestLoadingService testLoader = new TestLoadingService();
-        testLoader.setOnSucceeded(event -> {
-            TestSet testSet = testLoader.getValue();
-
-            if (testSet.getDataSet().getFeatures().size() != selectedModel.getDataSet().getFeatures().size()) {
-                ExceptionAlert alert = new ExceptionAlert(new RuntimeException());
-                alert.setTitle("File structure mismatch");
-                alert.setContentText("The provided test file does not have the same structure as the model");
-                alert.showAndWait();
-
-                return;
-            }
-
-            selectedModel.addTestSet(testSet);
-            testList.getSelectionModel().select(testSet);
-        });
-
-        testLoader.exceptionProperty().addListener(loaderException);
+//        addModel.setOnAction(event -> runLoader(modelLoader));
+//        removeModel.setOnAction(event -> {
+//            projectsTable.getColumns().clear();
+//            modelsRepo.remove(modelsList.getSelectionModel().getSelectedIndex());
+//        });
+//        // endregion
+//
+//        // region Test
+//        TestLoadingService testLoader = new TestLoadingService();
+//        testLoader.setOnSucceeded(event -> {
+//            TestSet testSet = testLoader.getValue();
+//
+//            if (testSet.getDataSet().getFeatures().size() != selectedModel.getDataSet().getFeatures().size()) {
+//                ExceptionAlert alert = new ExceptionAlert(new RuntimeException());
+//                alert.setTitle("File structure mismatch");
+//                alert.setContentText("The provided test file does not have the same structure as the model");
+//                alert.showAndWait();
+//
+//                return;
+//            }
+//
+//            selectedModel.addTestSet(testSet);
+//            testList.getSelectionModel().select(testSet);
+//        });
+//
+//        testLoader.exceptionProperty().addListener(loaderException);
 
         testList.setCellFactory((view) -> new TestSetCell());
 
@@ -172,7 +172,7 @@ public class ModelLibraryController extends Controller {
             removeTest.setDisable(false);
         });
 
-        addTest.setOnAction(event -> runLoader(testLoader));
+//        addTest.setOnAction(event -> runLoader(testLoader));
         removeTest.setOnAction(event -> {
             if (selectedModel != null)
                 selectedModel.getTestSets().remove(testList.getSelectionModel().getSelectedIndex());
@@ -251,8 +251,8 @@ public class ModelLibraryController extends Controller {
             projectsTable.getColumns().add(column);
         }
 
-        ObservableList<Double[]> projects = FXCollections.observableArrayList(dataSet.getProjects());
-        projectsTable.setItems(projects);
+//        ObservableList<Double[]> projects = FXCollections.observableArrayList(dataSet.getProjects());
+//        projectsTable.setItems(projects);
     }
 
     private void runLoader(FileLoader loader) {

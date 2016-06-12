@@ -1,13 +1,12 @@
 package unit.dataset;
 
-import dataset.DataSet;
-import dataset.Feature;
-import dataset.InputOutput;
-import dataset.TrainingData;
+import dataset.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.jar.Pack200;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -19,7 +18,6 @@ public class TrainingDataTest {
     @Test
     public void testSetDependantFeatures() {
         // Arrange
-
         Feature aFeature = mock(Feature.class);
         when(aFeature.getName()).thenReturn("A");
 
@@ -34,10 +32,11 @@ public class TrainingDataTest {
         features.add(bFeature);
         features.add(cFeature);
 
-        List<Double[]> projects = new ArrayList<>();
-        projects.add(new Double[]{0.0, 1.0, 2.0});
-        projects.add(new Double[]{0.0, 1.0, 2.0});
-        projects.add(new Double[]{0.0, 1.0, 2.0});
+        List<Project> projects = Arrays.asList(
+                new Project(0, (new Double[]{0.0, 1.0, 2.0})),
+                new Project(1, (new Double[]{0.0, 1.0, 2.0})),
+                new Project(2, (new Double[]{0.0, 1.0, 2.0}))
+        );
 
         DataSet ds = mock(DataSet.class);
         when(ds.getFeatures()).thenReturn(features);
@@ -77,10 +76,11 @@ public class TrainingDataTest {
         features.add(bFeature);
         features.add(cFeature);
 
-        List<Double[]> projects = new ArrayList<>();
-        projects.add(new Double[]{0.0, 1.0, 2.0});
-        projects.add(new Double[]{0.0, 1.0, 2.0});
-        projects.add(new Double[]{0.0, 1.0, 2.0});
+        List<Project> projects = Arrays.asList(
+                new Project(0, new Double[]{0.0, 1.0, 2.0}),
+                new Project(1, new Double[]{0.0, 1.0, 2.0}),
+                new Project(2, new Double[]{0.0, 1.0, 2.0})
+        );
 
         DataSet ds = mock(DataSet.class);
         when(ds.getFeatures()).thenReturn(features);

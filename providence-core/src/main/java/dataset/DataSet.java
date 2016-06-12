@@ -9,8 +9,9 @@ import java.util.List;
  * Created by Joseph Billingsley on 14/02/2016.
  */
 public class DataSet {
+    
     List<Feature> features = new ArrayList<>();
-    List<Double[]> projects = new ArrayList<>();
+    List<Project> projects = new ArrayList<>();
 
     /**
      * Adds a feature to the dataset. Equivalent to a adding a column in a table.
@@ -34,12 +35,12 @@ public class DataSet {
 
         for (int i = 0; i < numberOfProjects; i++) {
 
-            Double[] project = new Double[features.size()];
+            Double[] data = new Double[features.size()];
             for (int j = 0; j < features.size(); j++) {
-                project[j] = features.get(j).get(i);
+                data[j] = features.get(j).get(i);
             }
 
-            projects.add(project);
+            projects.add(new Project(i, data));
         }
     }
 
@@ -54,14 +55,14 @@ public class DataSet {
      * @param index The index of the project.
      * @return The project at the provided index. Equivalent to returning a row in a table.
      */
-    public Double[] getProject(int index) {
+    public Project getProject(int index) {
         return projects.get(index);
     }
 
     /**
      * @return All stored projects. Equivalent to returning all rows in a table.
      */
-    public List<Double[]> getProjects() {
+    public List<Project> getProjects() {
         return projects;
     }
 
@@ -76,5 +77,9 @@ public class DataSet {
         }
 
         projects.remove(index);
+    }
+
+    public void removeProject(Project project) {
+        removeProject(project.getId());
     }
 }

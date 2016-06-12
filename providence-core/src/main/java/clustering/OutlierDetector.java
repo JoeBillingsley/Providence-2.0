@@ -1,5 +1,6 @@
 package clustering;
 
+import dataset.Project;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
@@ -13,15 +14,27 @@ import java.util.stream.Collectors;
  */
 public class OutlierDetector {
 
+    private final IClustering clustering;
+    private int lowerBound, upperBound;
+
+    public OutlierDetector(IClustering clustering) {
+        this(clustering, 2, 5);
+    }
+
+    public OutlierDetector(IClustering clustering, int lowerBound, int upperBound) {
+        this.clustering = clustering;
+
+        setLowerBound(lowerBound);
+        setUpperBound(upperBound);
+    }
+
     /**
      * Identifies points that are not representative of the rest of the population and returns them.
      *
      * @param points The points to search for outliers amongst.
      * @return The points which were found to be outliers.
      */
-    public List<Double[]> getOutliers(List<Double[]> points) {
-
-        int lowerBound = 2, upperBound = 5;
+    public List<Project> getOutliers(List<Project> points) {
 
         if (upperBound > points.size())
             upperBound = points.size();
@@ -34,7 +47,7 @@ public class OutlierDetector {
 
         int n = 3;
 
-        List<Double[]> outliers = new ArrayList<>();
+        List<Project> outliers = new ArrayList<>();
 
         for (Cluster cluster : clusters) {
             if (cluster.getPoints().size() < n) {
@@ -42,6 +55,7 @@ public class OutlierDetector {
                 continue;
             }
 
+            // TODO LOGICAL ERROR - Removing too many clusters
             Cluster[] otherClusters = ArrayUtils.removeElement(clusters, cluster);
 
             outliers.addAll(cluster.getPoints().stream()
@@ -64,7 +78,7 @@ public class OutlierDetector {
      * @throws IllegalArgumentException If the upper bound is less than the lower bound.
      * @throws IllegalArgumentException If the upper bound is more than the highest index of points.
      */
-    private Cluster[] findBestClustering(List<Double[]> points, int lowerBound, int upperBound) {
+    private Cluster[] findBestClustering(List<Project> points, int lowerBound, int upperBound) {
 
         // region Argument checks
         if (lowerBound < 2)
@@ -81,12 +95,10 @@ public class OutlierDetector {
 
         Cluster[] bestClustering = null;
 
-        KMeansClustering clustering = new KMeansClustering(points, new PlusPlusInitialisation());
-
         double maxAvgSVal = Double.MIN_VALUE;
 
         for (int k = lowerBound; k <= upperBound; k++) {
-            Cluster[] clusters = clustering.run(k);
+            Cluster[] clusters = clustering.run(points, k);
 
             double totalSVal = 0;
 
@@ -96,7 +108,7 @@ public class OutlierDetector {
                 if (cluster.getPoints().size() == 0)
                     continue;
 
-                for (Double[] point : cluster.getPoints()) {
+                for (Project point : cluster.getPoints()) {
                     totalSVal += Silhouette.getSilhouetteValue(point, cluster, otherClusters);
                 }
             }
@@ -110,5 +122,13 @@ public class OutlierDetector {
         }
 
         return bestClustering;
+    }
+
+    public void setLowerBound(int lowerBound) {
+        this.lowerBound = lowerBound;
+    }
+
+    public void setUpperBound(int upperBound) {
+        this.upperBound = upperBound;
     }
 }

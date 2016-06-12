@@ -16,22 +16,24 @@ public class InputOutput {
      * @param project             The data of a particular project.
      * @param outputColumnIndexes The indexes of the output columns.
      */
-    public InputOutput(Double[] project, int[] outputColumnIndexes) {
+    public InputOutput(Project project, int[] outputColumnIndexes) {
         // region Argument checks
         if (outputColumnIndexes.length == 0)
             throw new IllegalArgumentException("The output column index collection cannot be empty.");
         // endregion
 
-        input = new Double[project.length - outputColumnIndexes.length];
+        Double[] projectData = project.getData();
+
+        input = new Double[projectData.length - outputColumnIndexes.length];
         output = new Double[outputColumnIndexes.length];
 
         int nextInput = 0, nextOutput = 0;
         boolean next = false;
 
-        for (int i = 0; i < project.length; i++) {
+        for (int i = 0; i < projectData.length; i++) {
             for (int outputIndex : outputColumnIndexes) {
                 if (i == outputIndex) {
-                    output[nextOutput++] = project[i];
+                    output[nextOutput++] = projectData[i];
                     next = true;
                     break;
                 }
@@ -41,7 +43,7 @@ public class InputOutput {
 
             if (next) continue;
 
-            input[nextInput++] = project[i];
+            input[nextInput++] = projectData[i];
         }
 
     }

@@ -1,7 +1,10 @@
 package clustering;
 
+import dataset.Project;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the Forgy method for initialising the means in the K-Means clustering algorithm.
@@ -18,7 +21,7 @@ public class ForgyInitialisation implements IMeanInitialiser {
      * @throws IndexOutOfBoundsException If k is larger than the number of candidate points.
      */
     @Override
-    public List<Double[]> initialiseMeans(int k, List<Double[]> candidatePoints) {
+    public List<Double[]> initialiseMeans(int k, List<Project> candidatePoints) {
         Collections.shuffle(candidatePoints);
 
         if (k > candidatePoints.size())
@@ -26,7 +29,8 @@ public class ForgyInitialisation implements IMeanInitialiser {
                     " k: " + k +
                     " points: " + candidatePoints.size());
 
-        return candidatePoints.subList(0, k);
-
+        return candidatePoints.subList(0, k).stream()
+                .map(Project::getData)
+                .collect(Collectors.toList());
     }
 }

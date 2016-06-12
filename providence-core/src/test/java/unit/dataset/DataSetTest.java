@@ -55,7 +55,7 @@ public class DataSetTest {
         assertEquals(featureTwo, ds.getFeatures().get(1).getAll());
 
         assertEquals(2, ds.getProjects().size());
-        assertEquals(3.0, ds.getProject(0)[2], 0);
+        assertEquals(3.0, ds.getProject(0).getData()[2], 0);
 
         assertNotNull(inconsistentNumberOfProjects);
         assertEquals(IllegalArgumentException.class, inconsistentNumberOfProjects.getClass());
@@ -86,6 +86,6 @@ public class DataSetTest {
         assertEquals(2, ds.getFeatures().size());
         assertEquals(1, ds.getProjects().size());
 
-        assertEquals(1.5, ds.getProject(0)[0], 0);
+        assertEquals(1.5, ds.getProject(0).getData()[0], 0);
     }
 }

@@ -1,5 +1,7 @@
 package clustering;
 
+import dataset.Project;
+
 import java.util.List;
 
 /**
@@ -14,5 +16,5 @@ public interface IMeanInitialiser {
      * @param dataPoints The source points that will be clustered.
      * @return The initial means to start the K Means clustering algorithm with.
      */
-    List<Double[]> initialiseMeans(int k, List<Double[]> dataPoints);
+    List<Double[]> initialiseMeans(int k, List<Project> dataPoints);
 }

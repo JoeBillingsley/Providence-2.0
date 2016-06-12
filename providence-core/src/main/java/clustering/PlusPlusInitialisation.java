@@ -1,11 +1,13 @@
 package clustering;
 
+import dataset.Project;
 import javafx.util.Pair;
 import utils.BoundedRandom;
 import utils.Distance;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PrimitiveIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
 public class PlusPlusInitialisation implements IMeanInitialiser {
 
     @Override
-    public List<Double[]> initialiseMeans(int k, List<Double[]> dataPoints) {
+    public List<Double[]> initialiseMeans(int k, List<Project> dataPoints) {
 
         // region Argument checks
         if (k > dataPoints.size())
@@ -31,12 +33,12 @@ public class PlusPlusInitialisation implements IMeanInitialiser {
 
         List<Double[]> centers = new ArrayList<>();
 
-        Double[] initialCenter = dataPoints.get(idx);
+        Double[] initialCenter = dataPoints.get(idx).getData();
         centers.add(initialCenter);
 
         while (centers.size() < k) {
             List<Pair<Double[], Double>> distanceToCenters = dataPoints.stream()
-                    .map(dataPoint -> distanceToNearestCenter(dataPoint, centers))
+                    .map(dataPoint -> distanceToNearestCenter(dataPoint.getData(), centers))
                     .collect(Collectors.toList());
 
             double totalDistance = distanceToCenters.stream().mapToDouble(Pair::getValue).sum();
@@ -82,6 +84,7 @@ public class PlusPlusInitialisation implements IMeanInitialiser {
                 return distanceToCenter.getKey();
         }
 
-        return null; // Should never occur
+        // This should never occur
+        throw new Error();
     }
 }

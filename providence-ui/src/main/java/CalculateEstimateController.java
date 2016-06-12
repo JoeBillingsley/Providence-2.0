@@ -137,52 +137,52 @@ public class CalculateEstimateController extends Controller {
             graphSeries.updateSeries(dominatedIdx, dominatedPoints);
         }));
 
-        runner.start(AlgorithmRunner.RUN_FOREVER, false, true);
-
-        run.setOnAction(event -> {
-            run.setDisable(true);
-            pause.setDisable(false);
-            buildEnsemble.setDisable(false);
-            save.setDisable(false);
-
-            runner.continueRun();
-        });
-
-        pause.setOnAction(event -> {
-            run.setDisable(false);
-            pause.setDisable(true);
-
-            runner.pause();
-        });
-
-        addPreferencePoint.setOnAction(event -> {
-            // Pause
-            run.setDisable(false);
-            pause.setDisable(true);
-            runner.pause();
-
-            // Get aspiration point
-            SetAspirationPointController aspirationPointController =
-                    (SetAspirationPointController) loadSceneForResult("SetAspirationPoint", result -> {
-                        this.aspirationPoint = (Double[]) result;
-
-                        if (aspirationPointIndex > -1)
-                            graph.removePoint(aspirationPointIndex);
-
-                        aspirationPointIndex = graph.add(aspirationPoint, Color.GREEN);
-                        algorithm.setAspirationPoint(aspirationPoint);
-                    });
-
-            for (int i = 0; i < errorMetrics.size(); i++) {
-                ErrorMetric errorMetric = errorMetrics.get(i);
-
-                double initialValue = 0;
-                if (aspirationPoint != null)
-                    initialValue = aspirationPoint[i];
-
-                aspirationPointController.setValues(i, initialValue, errorMetric.getLowerBound(), errorMetric.getUpperBound());
-            }
-        });
+//        runner.start(AlgorithmRunner.RUN_FOREVER, false, true);
+//
+//        run.setOnAction(event -> {
+//            run.setDisable(true);
+//            pause.setDisable(false);
+//            buildEnsemble.setDisable(false);
+//            save.setDisable(false);
+//
+//            runner.continueRun();
+//        });
+//
+//        pause.setOnAction(event -> {
+//            run.setDisable(false);
+//            pause.setDisable(true);
+//
+//            runner.pause();
+//        });
+//
+//        addPreferencePoint.setOnAction(event -> {
+//            // Pause
+//            run.setDisable(false);
+//            pause.setDisable(true);
+//            runner.pause();
+//
+//            // Get aspiration point
+//            SetAspirationPointController aspirationPointController =
+//                    (SetAspirationPointController) loadSceneForResult("SetAspirationPoint", result -> {
+//                        this.aspirationPoint = (Double[]) result;
+//
+//                        if (aspirationPointIndex > -1)
+//                            graph.removePoint(aspirationPointIndex);
+//
+//                        aspirationPointIndex = graph.add(aspirationPoint, Color.GREEN);
+//                        algorithm.setAspirationPoint(aspirationPoint);
+//                    });
+//
+//            for (int i = 0; i < errorMetrics.size(); i++) {
+//                ErrorMetric errorMetric = errorMetrics.get(i);
+//
+//                double initialValue = 0;
+//                if (aspirationPoint != null)
+//                    initialValue = aspirationPoint[i];
+//
+//                aspirationPointController.setValues(i, initialValue, errorMetric.getLowerBound(), errorMetric.getUpperBound());
+//            }
+//        });
 
         save.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
