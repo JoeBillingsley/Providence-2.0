@@ -1,5 +1,8 @@
 package custom_controls;
 
+import evolve_nn.IUpdateListener;
+import evolve_nn.PopulationInformation;
+import evolve_nn.SEESolution;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.input.ScrollEvent;
@@ -25,7 +28,7 @@ import java.util.List;
  * Created by Joseph Billingsley on 01/02/2016.
  * Zooming and draggable movement adapted from source code on http://stackoverflow.com/questions/31073007
  */
-public class ScientificScatterGraph extends Pane {
+public class ScientificScatterGraph<S extends SEESolution> extends Pane implements IUpdateListener<S> {
 
     private final Rotate rotateX;
     private final Rotate rotateY;
@@ -88,7 +91,7 @@ public class ScientificScatterGraph extends Pane {
      *
      * @param axis The axis to construct the graph with.
      */
-    public void setAxis(List<IAxis> axis) {
+    public void setMetrics(List<IAxis> axis) {
         this.sphereFactory = new PointSphereFactory(100, axis);
 
         Group box = makeAxisBox(axis, axisLength);
@@ -288,5 +291,13 @@ public class ScientificScatterGraph extends Pane {
     public void clear() {
         visiblePoints.getChildren().clear();
         sphereFactory.freeAll();
+    }
+
+    @Override
+    public void onUpdate(PopulationInformation<S> populationInformation) {
+        clear();
+
+        addAll(populationInformation.getDominatedPoints(), Color.GREEN);
+        addAll(populationInformation.getNonDominatedPoints(), Color.RED);
     }
 }

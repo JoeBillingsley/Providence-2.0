@@ -1,12 +1,13 @@
 package custom_controls;
 
-import javafx.fxml.FXMLLoader;
+import evolve_nn.IUpdateListener;
+import evolve_nn.PopulationInformation;
+import evolve_nn.SEESolution;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  * <p>
  * Created by Joseph Billingsley on 08/03/2016.
  */
-public class GraphSeries extends VBox {
+public class GraphSeries<S extends SEESolution> extends VBox implements IUpdateListener<S> {
 
     private List<ScatterChart<Number, Number>> charts;
     private List<List<XYChart.Series<Number, Number>>> seriesLists;
@@ -27,16 +28,6 @@ public class GraphSeries extends VBox {
     private List<IAxis> metrics;
 
     public GraphSeries() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/custom_controls/GraphSeries.fxml"));
-        loader.setController(this);
-        loader.setRoot(this);
-
-        try {
-            loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         charts = new ArrayList<>();
         seriesLists = new ArrayList<>();
     }
@@ -47,7 +38,7 @@ public class GraphSeries extends VBox {
      *
      * @param metrics The different metrics to consider.
      */
-    public void addMetrics(List<IAxis> metrics) {
+    public void setMetrics(List<IAxis> metrics) {
         this.metrics = metrics;
 
         for (int i = 0; i < metrics.size(); i++) {
@@ -103,7 +94,7 @@ public class GraphSeries extends VBox {
      *
      * @param index  The index of the series.
      * @param points The points to display in the series. The dimension of the points corresponds to the defined metrics.
-     *               For example if 3 metrics have been defined using {@link custom_controls.GraphSeries#addMetrics(List)}
+     *               For example if 3 metrics have been defined using {@link custom_controls.GraphSeries#setMetrics(List)}
      *               then each point should be of length 3 as well.
      */
     public void updateSeries(int index, List<Double[]> points) {
@@ -142,5 +133,13 @@ public class GraphSeries extends VBox {
 
             }
         }
+    }
+
+    @Override
+    public void onUpdate(PopulationInformation<S> populationInformation) {
+        if(seriesLists.size() == 0)
+            addSeries("Nondominated");
+
+        updateSeries(0, populationInformation.getDominatedPoints());
     }
 }

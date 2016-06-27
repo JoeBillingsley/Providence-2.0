@@ -7,24 +7,19 @@ import dataset.TrainingData;
 import ensemble.ParetoEnsemble;
 import error_metrics.ErrorMetric;
 import evolve_nn.*;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.StageStyle;
 import model_library.Model;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-import org.uma.jmetal.util.solutionattribute.impl.DominanceRanking;
 import search_parameters.SearchParameters;
 import writers.SolutionFileWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,48 +89,48 @@ public class CalculateEstimateController extends Controller {
         AlgorithmRunner<SEESolution> runner = new AlgorithmRunner<>(algorithm);
 
         List<IAxis> axis = errorMetrics.stream().collect(Collectors.toList());
-        graph.setAxis(axis);
-        graphSeries.addMetrics(axis);
+        graph.setMetrics(axis);
+        graphSeries.setMetrics(axis);
 
         int nondominatedIdx = graphSeries.addSeries("Nondominated");
         int dominatedIdx = graphSeries.addSeries("Dominated");
 
-        runner.addUpdateListener(solutions -> Platform.runLater(() -> {
-
-            Ranking<SEESolution> fronts = new DominanceRanking<>();
-            fronts = fronts.computeRanking(solutions);
-
-            nonDominatedSolutions = fronts.getSubfront(0);
-
-            dominatedSolutions = new ArrayList<>();
-            for (int i = 1; i < fronts.getNumberOfSubfronts(); i++) {
-                dominatedSolutions.addAll(fronts.getSubfront(i));
-            }
-
-            List<Double[]> nonDominatedPoints =
-                    nonDominatedSolutions.stream()
-                            .map(SEESolution::getObjectives)
-                            .collect(Collectors.toList());
-
-            List<Double[]> dominatedPoints =
-                    dominatedSolutions.stream()
-                            .map(SEESolution::getObjectives)
-                            .collect(Collectors.toList());
-
-            generation++;
-            generationCount.setText("Running for " + generation + " generations");
-
-            // 3d graph
-            graph.clear();
-            graph.addAll(nonDominatedPoints, Color.RED);
-            graph.addAll(dominatedPoints, Color.ORANGE);
-
-            if (aspirationPoint != null)
-                aspirationPointIndex = graph.add(aspirationPoint, Color.GREEN);
-
-            graphSeries.updateSeries(nondominatedIdx, nonDominatedPoints);
-            graphSeries.updateSeries(dominatedIdx, dominatedPoints);
-        }));
+//        runner.addUpdateListener(solutions -> Platform.runLater(() -> {
+//
+//            Ranking<SEESolution> fronts = new DominanceRanking<>();
+//            fronts = fronts.computeRanking(solutions);
+//
+//            nonDominatedSolutions = fronts.getSubfront(0);
+//
+//            dominatedSolutions = new ArrayList<>();
+//            for (int i = 1; i < fronts.getNumberOfSubfronts(); i++) {
+//                dominatedSolutions.addAll(fronts.getSubfront(i));
+//            }
+//
+//            List<Double[]> nonDominatedPoints =
+//                    nonDominatedSolutions.stream()
+//                            .map(SEESolution::getObjectives)
+//                            .collect(Collectors.toList());
+//
+//            List<Double[]> dominatedPoints =
+//                    dominatedSolutions.stream()
+//                            .map(SEESolution::getObjectives)
+//                            .collect(Collectors.toList());
+//
+//            generation++;
+//            generationCount.setText("Running for " + generation + " generations");
+//
+//            // 3d graph
+//            graph.clear();
+//            graph.addAll(nonDominatedPoints, Color.RED);
+//            graph.addAll(dominatedPoints, Color.ORANGE);
+//
+//            if (aspirationPoint != null)
+//                aspirationPointIndex = graph.add(aspirationPoint, Color.GREEN);
+//
+//            graphSeries.updateSeries(nondominatedIdx, nonDominatedPoints);
+//            graphSeries.updateSeries(dominatedIdx, dominatedPoints);
+//        }));
 
 //        runner.start(AlgorithmRunner.RUN_FOREVER, false, true);
 //

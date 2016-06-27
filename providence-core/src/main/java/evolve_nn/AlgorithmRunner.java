@@ -1,22 +1,26 @@
 package evolve_nn;
 
-import org.uma.jmetal.solution.Solution;
+import javafx.application.Platform;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Runs an {@link AbstractEvolutionaryAlgorithm} synchronously.
  * <p>
  * Created by Joseph Billingsley on 02/03/2016.
  */
-public class AlgorithmRunner<S extends Solution<?>> {
+public class AlgorithmRunner<S extends SEESolution> {
+
+    private AtomicReference<PopulationInformation<S>> valueUpdate = new AtomicReference<>();
+
+    private int recentGeneration = 0;
+    private List<S> population;
 
     private AbstractEvolutionaryAlgorithm<S> algorithm;
 
-    private List<Consumer<List<S>>> updateListeners = new ArrayList<>();
+    private List<IUpdateListener<S>> updateListeners = new ArrayList<>();
 
     /**
      * Creates an algorithm runner for the provided evolutionary algorithm.
@@ -25,6 +29,13 @@ public class AlgorithmRunner<S extends Solution<?>> {
      */
     public AlgorithmRunner(AbstractEvolutionaryAlgorithm<S> algorithm) {
         this.algorithm = algorithm;
+
+        restart();
+    }
+
+    public void restart() {
+        this.recentGeneration = 0;
+        this.population = algorithm.createInitialPopulation();
     }
 
     /**
@@ -33,7 +44,7 @@ public class AlgorithmRunner<S extends Solution<?>> {
      *
      * @return The updated population after the epoch.
      */
-    public List<S> step() {
+    public PopulationInformation<S> step() {
         return runFor(1);
     }
 
@@ -45,38 +56,48 @@ public class AlgorithmRunner<S extends Solution<?>> {
      *                    the value AlgorithmRunner.RUN_FOREVER is provided the algorithm will run until stop is called.
      * @return The most recent population.
      */
-    public List<S> runFor(final int generations) {
+    public PopulationInformation<S> runFor(final int generations) {
 
         List<S> offspringPopulation;
         List<S> matingPopulation;
 
-        List<S> population = algorithm.createInitialPopulation();
         population = algorithm.evaluatePopulation(population);
 
         for (int i = 0; i < generations; i++) {
+            recentGeneration++;
+
             matingPopulation = algorithm.selection(population);
             offspringPopulation = algorithm.reproduction(matingPopulation);
             offspringPopulation = algorithm.evaluatePopulation(offspringPopulation);
             population = algorithm.replacement(population, offspringPopulation);
             algorithm.nextGeneration();
 
-            List<S> immutablePopulation = Collections.unmodifiableList(population);
+            PopulationInformation<S> populationInformation = new PopulationInformation<>(recentGeneration, population);
 
-            for (Consumer<List<S>> listener : updateListeners) {
-                listener.accept(immutablePopulation);
+            if (Platform.isFxApplicationThread()) {
+                informListeners(updateListeners, populationInformation);
+            } else {
+                Platform.runLater(() -> informListeners(updateListeners, populationInformation));
             }
         }
 
-        return population;
+        return new PopulationInformation<>(generations, population);
+    }
+
+    private void informListeners(Iterable<IUpdateListener<S>> updateListeners, PopulationInformation<S> populationInformation) {
+        for (IUpdateListener<S> listener : updateListeners) {
+            listener.onUpdate(populationInformation);
+        }
     }
 
     /**
-     * Adds a consumer that will be called at the end of every epoch. The listener will receive an unmodifiable version
-     * of the current population.
+     * Adds a consumer that will be called at the end of every epoch. The listener will receive an object containing an
+     * unmodifiable version of the current population.
      *
      * @param listener The consumer to call.
      */
-    public void addUpdateListener(Consumer<List<S>> listener) {
+
+    public void addUpdateListener(IUpdateListener<S> listener) {
         updateListeners.add(listener);
     }
 }
